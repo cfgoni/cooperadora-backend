@@ -14,7 +14,7 @@ def get_db():
 @router.get("/db-test")
 def db_test(db: Session = Depends(get_db)):
     try:
-        result = db.execute("SELECT 1;")
+        result = db.execute("SELECT current_timestamp;")
         return {"db_ok": True, "result": list(result)}
     except Exception as e:
         return {"db_ok": False, "error": str(e)}
