@@ -1,13 +1,20 @@
-from fastapi import APIRouter
-from database import engine
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from database import SessionLocal
 
 router = APIRouter()
 
-@router.get("/db-test")
-def db_test():
+def get_db():
+    db = SessionLocal()
     try:
-        with engine.connect() as conn:
-            result = conn.execute("SELECT 1;")
-            return {"db_ok": True, "result": list(result)}
+        yield db
+    finally:
+        db.close()
+
+@router.get("/db-test")
+def db_test(db: Session = Depends(get_db)):
+    try:
+        result = db.execute("SELECT 1;")
+        return {"db_ok": True, "result": list(result)}
     except Exception as e:
         return {"db_ok": False, "error": str(e)}
